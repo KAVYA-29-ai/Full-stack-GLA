@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foreground and Background Image</title>
+    <style>
+        body {
+            background-image: url('https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .foreground {
+            
+            position: absolute;   
+            top: 50%;             
+            left: 50%;            
+            transform: translate(-50%, -50%); 
+            border: 20px solid black; 
+            border-radius: 2px;  
+            box-shadow: 0 0 20px rgba(0,0,0,0.7); 
+            width: min(700px, 90vw);
+            max-height: 80vh;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <img class="foreground" src="https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg" alt="Foreground Image">
+</body>
+</html>

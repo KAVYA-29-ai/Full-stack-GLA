@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grid Layout</title>
+  <style>
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 columns of equal width */
+      gap: 10px; /* space between grid items */
+      background-color: rgb(243,223,193);
+      padding: 10px;
+    }
+    .grid-item {
+      background-color: rgb(243,223,193);
+      padding: 20px;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center; background-color: rgb(243,223,193);">Grid Layout Example</h1>
+    <div class="grid-container">
+        <div class="grid-item">
+        <h2>Item 1</h2>
+        <p>This is the first item in the grid.</p>
+        </div>
+        <div class="grid-item">
+        <h2>Item 2</h2>
+        <p>This is the second item in the grid.</p>
+        </div>
+        <div class="grid-item">
+        <h2>Item 3</h2>
+        <p>This is the third item in the grid.</p>
+        </div>
+        <div class="grid-item">
+        <h2>Item 4</h2>
+        <p>This is the fourth item in the grid.</p>
+        </div>
+        <div class="grid-item">
+        <h2>Item 5</h2>
+        <p>This is the fifth item in the grid.</p>
+        </div>
+        <div class="grid-item">
+        <h2>Item 6</h2>
+        <p>This is the sixth item in the grid.</p>
+        </div>
+    </div>
+</body>
+</html>

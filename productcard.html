@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Navigation Bar & Product Cards</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        h1{
+            text-align:center;
+            margin:20px 0;
+        }
+
+
+        .container{
+            background-color:blue; 
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:15px 40px;
+        }
+
+        .logo{
+            color:white;
+            font-size:28px;
+            font-weight:bold;
+        }
+
+        .menu{
+            display:flex;
+            gap:30px;
+        }
+
+        .card{
+            color:white;
+            font-size:18px;
+            cursor:pointer;
+            text-decoration:none; 
+        }
+
+        .card:hover{
+            color:yellow;
+        }
+
+     
+        .products{
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:20px;
+            margin-top:40px;
+        }
+
+        .price{
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align:center;
+            background-color:#f9f9f9;
+        }
+        .price button{
+            background-color:blue;
+            color:white;
+            border:none;
+            padding:10px 20px;
+            border-radius:4px;
+            cursor:pointer;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                flex-direction:column;
+                gap:15px;
+                padding:15px 20px;
+            }
+
+            .menu {
+                flex-wrap:wrap;
+                justify-content:center;
+                gap:15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Task 3 : Product Cards</h1>
+
+
+<div class="container">
+    <div class="logo">LOGO</div>
+    <div class="menu">
+        <a class="card" href="https://student.glauniversity.in/Main/Index">Home</a>
+        <a class="card" href="https://student.glauniversity.in/Main/About">About</a>
+        <a class="card" href="https://student.glauniversity.in/Main/Services">Services</a>
+        <a class="card" href="https://student.glauniversity.in/Main/Contact">Contact</a>
+    </div>
+</div>
+
+
+<div class="products">
+    <div class="price">
+        <h2>Dominos Pizza</h2>
+        <p>Cheese Burst Dominos Pizza</p>
+        <p>Price: $99.99</p>
+        <button>Add to Cart</button>
+    </div>
+
+    <div class="price">
+        <h2>Pizza Hut Pizza</h2>
+        <p>Cheese Burst Pizza Hut Special</p>
+        <p>Price: $89.99</p>
+        <button>Add to Cart</button>
+    </div>
+
+    <div class="price">
+        <h2>McDonald's Pizza</h2>
+        <p>Cheese Burst McD Pizza</p>
+        <p>Price: $79.99</p>
+        <button>Add to Cart</button>
+    </div>
+</div>
+
+</body>
+</html>

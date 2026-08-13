@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Image Stack Effect</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: black;
+    }
+
+    .container {
+      width: 100%;
+    }
+
+    .card {
+      height: 100vh;
+      width: 100%;
+      position: sticky;
+      top: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+
+      transform: scale(1);
+      transition: transform 0.8s ease;
+    }
+
+    .card:hover img {
+      transform: scale(1.05);
+    }
+
+    .card1 {
+      z-index: 1;
+    }
+
+    .card2 {
+      z-index: 2;
+    }
+
+    .card3 {
+      z-index: 3;
+    }
+
+    .card4 {
+      z-index: 4;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="card card1">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=80" alt="Landscape image">
+    </div>
+
+    <div class="card card2">
+      <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2000&q=80" alt="Mountain landscape">
+    </div>
+
+    <div class="card card3">
+      <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=80" alt="Nature landscape">
+    </div>
+
+    <div class="card card4">
+      <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80" alt="Mountain landscape">
+    </div>
+
+  </div>
+
+</body>
+</html>
