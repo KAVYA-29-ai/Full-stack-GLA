@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Prototype — TrustMesh Workflow Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        tm: {
+                            navy: '#0f172a',
+                            slate: '#1e293b',
+                            dark: '#090d16',
+                            border: '#334155',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            red: '#ef4444',
+                            purple: '#a855f7',
+                            amber: '#f59e0b',
+                            blue: '#3b82f6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        /* Subtle dotted grid canvas background matching enterprise SaaS */
+        .canvas-grid {
+            background-color: #0b101d;
+            background-image: radial-gradient(#334155 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+
+        /* Node Port Handles */
+        .port-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #1e293b;
+            border: 2px solid #38bdf8;
+            transition: all 0.2s ease;
+            cursor: crosshair;
+            z-index: 30;
+        }
+        .port-dot:hover {
+            transform: scale(1.4);
+            border-color: #06b6d4;
+            background-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+        }
+        .port-dot.port-red {
+            border-color: #f87171;
+        }
+        .port-dot.port-red:hover {
+            border-color: #ef4444;
+            background-color: #f87171;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+        }
+
+        /* Dynamic Wire Animations */
+        .connection-wire {
+            fill: none;
+            stroke-width: 2.5px;
+            stroke-linecap: round;
+            filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.4));
+            transition: stroke 0.3s ease;
+        }
+        .connection-wire.active {
+            stroke-dasharray: 8 4;
+            animation: flowWire 1s linear infinite;
+        }
+
+        @keyframes flowWire {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Custom Scrollbars */
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Realistic Window Box Shadow */
+        .app-window-shadow {
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Module card hover effect */
+        .workflow-node {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .workflow-node:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.15), 0 0 0 1px rgba(56, 189, 248, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-3 md:p-6 bg-slate-950 text-slate-100 overflow-x-auto">
+
+    <!-- Top Header Banner -->
+    <header class="max-w-[2100px] w-full mx-auto mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div>
+            <div class="flex items-center space-x-3">
+                <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-shield-halved text-white text-base"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                        Our Prototype — <span class="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">TrustMesh</span>
+                    </h1>
+                </div>
+            </div>
+            <p class="text-xs md:text-sm text-slate-400 font-medium mt-1 flex items-center gap-2">
+                <span>Decentralized Identity</span> • 
+                <span>Access Control</span> • 
+                <span>Digital Assets</span> • 
+                <span>AI Security</span>
+            </p>
+        </div>
+
+        <!-- Global Action Controls -->
+        <div class="flex items-center space-x-3">
+            <button id="btn-toggle-flow" class="flex items-center space-x-2 px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/40 transition">
+                <i class="fa-solid fa-play" id="flow-icon"></i>
+                <span id="flow-btn-text">Execute Live Workflow</span>
+            </button>
+            <button id="btn-reset-layout" class="flex items-center space-x-2 px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Reset View</span>
+            </button>
+            <div class="h-5 w-[1px] bg-slate-800"></div>
+            <span class="text-xs text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-hand-pointer text-cyan-400"></i> Drag modules to adjust architecture
+            </span>
+        </div>
+    </header>
+
+    <!-- Main SaaS Browser Window Container -->
+    <main class="max-w-[2100px] w-full mx-auto flex-1 flex flex-col">
+        
+        <div class="w-full bg-slate-900 rounded-2xl app-window-shadow border border-slate-800 overflow-hidden flex flex-col min-h-[820px] relative">
+            
+            <!-- Browser Header Bar -->
+            <div class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between z-30">
+                <!-- Mac Buttons -->
+                <div class="flex items-center space-x-2 w-24">
+                    <span class="w-3 h-3 rounded-full bg-rose-500/90 inline-block shadow-sm"></span>
+                    <span class="w-3 h-3 rounded-full bg-amber-500/90 inline-block shadow-sm"></span>
+                    <span class="w-3 h-3 rounded-full bg-emerald-500/90 inline-block shadow-sm"></span>
+                </div>
+
+                <!-- URL Address Bar -->
+                <div class="flex-1 max-w-xl mx-4 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-1.5 flex items-center justify-between text-xs text-slate-300 shadow-inner">
+                    <div class="flex items-center space-x-2 font-mono">
+                        <i class="fa-solid fa-lock text-emerald-400 text-[11px]"></i>
+                        <span class="text-slate-400 font-medium">https://</span>
+                        <span class="text-white font-semibold">YourCompanyName.com/trustmesh</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-slate-500 text-[11px]">
+                        <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono">v2.4.0</span>
+                    </div>
+                </div>
+
+                <!-- Window Right Navigation Icons -->
+                <div class="flex items-center space-x-3 text-slate-400 text-xs w-24 justify-end">
+                    <i class="fa-solid fa-arrow-left hover:text-white cursor-pointer transition"></i>
+                    <i class="fa-solid fa-arrow-right hover:text-white cursor-pointer transition"></i>
+                    <i class="fa-solid fa-rotate-right hover:text-white cursor-pointer transition"></i>
+                </div>
+            </div>
+
+            <!-- Workflow Canvas Workspace -->
+            <div id="canvas-wrapper" class="flex-1 relative overflow-auto canvas-grid min-h-[750px]">
+                
+                <!-- SVG Wire Overlay Container -->
+                <svg id="svg-connections" class="absolute inset-0 pointer-events-none z-10" style="width: 2150px; height: 900px;">
+                    <!-- Dynamic SVG lines rendered via JavaScript -->
+                </svg>
+
+                <!-- Workflow Node Canvas Container -->
+                <div id="nodes-container" class="relative w-[2150px] h-[900px]">
+                    
+                    <!-- MODULE 1: CONNECT WALLET -->
+                    <div id="node-wallet" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 40px; top: 40px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-wallet text-cyan-400"></i>
+                                <span>1. Connect Wallet</span>
+                            </span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        </div>
+                        <div class="p-3.5 space-y-3 bg-slate-950/80">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400 font-medium">Status:</span>
+                                <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded font-mono font-semibold text-[11px] flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle text-[6px]"></i> Connected
+                                </span>
+                            </div>
+
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1.5 font-mono text-[11px]">
+                                <div class="text-slate-400 text-[10px] uppercase tracking-wider">Address</div>
+                                <div class="text-cyan-300 font-bold truncate flex items-center justify-between">
+                                    <span>0xA82...91F</span>
+                                    <i class="fa-regular fa-copy text-slate-500 hover:text-slate-300 cursor-pointer"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+                                <span class="bg-purple-950/80 text-purple-300 border border-purple-800/60 px-2 py-0.5 rounded text-[10px] font-mono">
+                                    Polygon Amoy
+                                </span>
+                                <button class="text-[10px] text-rose-400 hover:text-rose-300 font-medium hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-power-off"></i> Disconnect
+                                </button>
+                            </div>
+                        </div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/2 -translate-y-1/2" data-node="wallet" data-port="out"></div>
+                    </div>
+
+                    <!-- MODULE 2: DID IDENTITY -->
+                    <div id="node-did" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 335px; top: 40px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-id-card text-blue-400"></i>
+                                <span>2. DID Identity</span>
+                            </span>
+                            <span class="text-[10px] bg-blue-950 text-blue-300 px-1.5 py-0.5 rounded font-mono border border-blue-800">W3C</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/80 text-xs">
+                            <div class="flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800">
+                                <span class="text-slate-300 font-medium">DID Created</span>
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                            </div>
+
+                            <div class="space-y-1 font-mono text-[11px] bg-slate-900 p-2 rounded border border-slate-800">
+                                <div class="text-slate-500 text-[9px] uppercase">DID String</div>
+                                <div class="text-sky-300 font-semibold truncate">did:trustmesh:ab12...9f7e</div>
+                            </div>
+
+                            <div class="flex justify-between text-[11px] font-mono">
+                                <span class="text-slate-400">Controller:</span>
+                                <span class="text-slate-200">0xA82...91F</span>
+                            </div>
+
+                            <div class="flex justify-between text-[11px]">
+                                <span class="text-slate-400">Status:</span>
+                                <span class="text-emerald-400 font-semibold">Active</span>
+                            </div>
+
+                            <div class="bg-slate-900/90 p-2 rounded border border-slate-800/80 font-mono text-[10px] space-y-0.5">
+                                <div class="text-slate-500">Document (IPFS CID):</div>
+                                <div class="text-purple-300 truncate">bafybeigdyr...kjs83</div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-medium text-[11px] rounded border border-slate-700 transition">
+                                View DID Document
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="did" data-port="in"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/2 -translate-y-1/2" data-node="did" data-port="out"></div>
+                    </div>
+
+                    <!-- MODULE 3: POLICY ENGINE / RBAC -->
+                    <div id="node-rbac" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 630px; top: 40px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-user-shield text-purple-400"></i>
+                                <span>3. PolicyEngine / RBAC</span>
+                            </span>
+                            <span class="text-[10px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded font-mono border border-purple-800">RuleEngine</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/80 text-xs">
+                            <div class="flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800">
+                                <span class="text-slate-400 font-medium">Current Role:</span>
+                                <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded font-bold font-mono">Manager</span>
+                            </div>
+
+                            <div class="space-y-1 font-mono text-[10px] max-h-36 overflow-y-auto custom-scroll bg-slate-900 p-2 rounded border border-slate-800">
+                                <div class="text-slate-500 font-sans font-semibold mb-1 border-b border-slate-800 pb-1">Permissions List</div>
+                                <div class="flex items-center justify-between py-0.5">
+                                    <span class="text-slate-300">READ_ASSET</span>
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                </div>
+                                <div class="flex items-center justify-between py-0.5">
+                                    <span class="text-slate-300">TRANSFER_ASSET</span>
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                </div>
+                                <div class="flex items-center justify-between py-0.5">
+                                    <span class="text-slate-300">READ_DOCUMENT</span>
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                </div>
+                                <div class="flex items-center justify-between py-0.5 opacity-80">
+                                    <span class="text-slate-400">MINT_ASSET</span>
+                                    <i class="fa-solid fa-xmark text-rose-400"></i>
+                                </div>
+                                <div class="flex items-center justify-between py-0.5 opacity-80">
+                                    <span class="text-slate-400">ASSIGN_ROLE</span>
+                                    <i class="fa-solid fa-xmark text-rose-400"></i>
+                                </div>
+                                <div class="flex items-center justify-between py-0.5 opacity-80">
+                                    <span class="text-slate-400">GRANT_ACCESS</span>
+                                    <i class="fa-solid fa-xmark text-rose-400"></i>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 font-medium text-[11px] rounded border border-slate-700 transition">
+                                View All Permissions
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="rbac" data-port="in"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/3" data-node="rbac" data-port="out-assets"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-2/3" data-node="rbac" data-port="out-docs"></div>
+                    </div>
+
+                    <!-- MODULE 4: DIGITAL ASSETS (NFTs) -->
+                    <div id="node-assets" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 925px; top: 40px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-cubes text-emerald-400"></i>
+                                <span>4. Digital Assets (NFTs)</span>
+                            </span>
+                            <span class="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded font-mono border border-emerald-800">ERC-721</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/80 text-xs">
+                            <!-- Asset Card 1 -->
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-200 text-[11px]">Asset #721</span>
+                                    <span class="text-[10px] bg-slate-800 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Token ID 721</span>
+                                </div>
+                                <div class="text-slate-400 text-[10px]">Equipment NFT</div>
+                                <div class="text-[9px] font-mono text-slate-500 truncate pt-0.5">
+                                    Owner: <span class="text-slate-300">did:trustmesh:ab12...9f7e</span>
+                                </div>
+                            </div>
+
+                            <!-- Asset Card 2 -->
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 space-y-0.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-200 text-[11px]">Asset #305</span>
+                                    <span class="text-[10px] bg-slate-800 text-sky-400 px-1.5 py-0.5 rounded font-mono">Token ID 305</span>
+                                </div>
+                                <div class="text-slate-400 text-[10px]">Document NFT</div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-medium text-[11px] rounded border border-slate-700 transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> View on Explorer
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="assets" data-port="in"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/2 -translate-y-1/2" data-node="assets" data-port="out"></div>
+                    </div>
+
+                    <!-- MODULE 5: AUDIT TRAIL (LIVE) -->
+                    <div id="node-audit" class="workflow-node absolute w-72 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 1220px; top: 40px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-amber-400"></i>
+                                <span>5. Audit Trail (Live)</span>
+                            </span>
+                            <span class="text-[10px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded font-mono border border-amber-800 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Realtime
+                            </span>
+                        </div>
+                        <div class="p-3 bg-slate-950/80">
+                            <div class="space-y-1.5 max-h-52 overflow-y-auto custom-scroll font-mono text-[10px]">
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                        <span class="text-slate-200">DID Created</span>
+                                    </div>
+                                    <span class="text-slate-500 text-[9px]">just now</span>
+                                </div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                        <span class="text-slate-200">Role Assigned</span>
+                                    </div>
+                                    <span class="text-slate-500 text-[9px]">2 min ago</span>
+                                </div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                        <span class="text-slate-200">Asset Minted</span>
+                                    </div>
+                                    <span class="text-slate-500 text-[9px]">5 min ago</span>
+                                </div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                        <span class="text-slate-200">Access Granted</span>
+                                    </div>
+                                    <span class="text-slate-500 text-[9px]">6 min ago</span>
+                                </div>
+                                <div class="bg-rose-950/40 p-2 rounded border border-rose-900/60 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-circle-xmark text-rose-400"></i>
+                                        <span class="text-rose-200 font-bold">Access Denied</span>
+                                    </div>
+                                    <span class="text-rose-400/80 text-[9px]">8 min ago</span>
+                                </div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                        <span class="text-slate-200">Asset Transferred</span>
+                                    </div>
+                                    <span class="text-slate-500 text-[9px]">10 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="audit" data-port="in"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/3" data-node="audit" data-port="out-sec"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-2/3 port-red" data-node="audit" data-port="out-ai"></div>
+                    </div>
+
+                    <!-- MODULE 6: SECURITY CENTER -->
+                    <div id="node-soc" class="workflow-node absolute w-72 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 1530px; top: 40px;">
+                        <div class="bg-rose-950/80 border-b border-rose-800/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-rose-100 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                                <span>6. Security Center</span>
+                            </span>
+                            <span class="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider animate-pulse">SOC ALERT</span>
+                        </div>
+                        <div class="p-3.5 space-y-3 bg-slate-950/80 text-xs">
+                            <!-- Gauge Visual -->
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex items-center space-x-4">
+                                <div class="relative w-16 h-16 flex items-center justify-center">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                        <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <path class="text-rose-500" stroke-dasharray="87, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    </svg>
+                                    <span class="absolute text-center">
+                                        <span class="text-base font-extrabold text-rose-400 font-mono">87</span>
+                                        <span class="block text-[8px] text-slate-400 font-mono">/100</span>
+                                    </span>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded font-extrabold text-[10px] tracking-wider uppercase">
+                                        HIGH RISK
+                                    </span>
+                                    <div class="text-[10px] text-slate-400 font-medium pt-1">Active threat vectors detected in policy engine</div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1">
+                                <div class="text-[10px] text-slate-400">Top Threat:</div>
+                                <div class="text-rose-300 font-bold text-[11px]">Repeated Unauthorized Access</div>
+                                <div class="text-[10px] font-mono text-slate-400 pt-0.5">
+                                    Suspicious Wallet: <span class="text-amber-400">0xD34...A7c9</span>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-semibold text-[11px] rounded transition shadow-lg shadow-rose-900/40">
+                                View Security Details
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/3" data-node="soc" data-port="in-audit"></div>
+                        <div class="port-dot input-port absolute -left-1.5 top-2/3 port-red" data-node="soc" data-port="in-attack"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/2 -translate-y-1/2" data-node="soc" data-port="out-report"></div>
+                    </div>
+
+                    <!-- MODULE 7: AI SECURITY AGENT -->
+                    <div id="node-ai" class="workflow-node absolute w-80 bg-slate-900/95 rounded-xl border border-rose-900/60 shadow-2xl overflow-hidden backdrop-blur" style="left: 1180px; top: 410px;">
+                        <div class="bg-slate-800/90 border-b border-rose-800/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-rose-200 flex items-center gap-2">
+                                <i class="fa-solid fa-brain text-purple-400"></i>
+                                <span>7. AI Security Agent</span>
+                            </span>
+                            <span class="text-[10px] bg-rose-950 text-rose-300 border border-rose-800 px-1.5 py-0.5 rounded font-mono font-bold">LLM Guard</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/90 text-xs">
+                            <div class="flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800">
+                                <span class="text-slate-400 font-medium">Threat Analysis:</span>
+                                <span class="bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded font-bold font-mono">THREAT: HIGH</span>
+                            </div>
+
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1 font-mono text-[10px]">
+                                <div class="text-amber-400 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-network-wired text-[9px]"></i> Pattern Detected
+                                </div>
+                                <div class="text-slate-300 bg-slate-950 p-2 rounded border border-slate-800/80 leading-relaxed">
+                                    “5 AccessDenied events within 30 seconds from wallet <span class="text-amber-300">0xD34...A7c9</span>”
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1 text-[10px]">
+                                <div class="text-rose-400 font-bold">Possible Attack:</div>
+                                <div class="text-slate-200 font-medium">Privilege Escalation / Brute-force Authorization Probing</div>
+                            </div>
+
+                            <div class="bg-amber-950/40 p-2 rounded border border-amber-800/60 text-[10px] space-y-0.5">
+                                <div class="text-amber-300 font-bold">AI Recommendation:</div>
+                                <div class="text-slate-300">Temporarily suspend wallet + notify administrator</div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 font-medium text-[11px] rounded border border-slate-700 transition">
+                                View Full Analysis
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2 port-red" data-node="ai" data-port="in"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/2 -translate-y-1/2 port-red" data-node="ai" data-port="out"></div>
+                    </div>
+
+                    <!-- MODULE 8: ATTACK SIMULATION (BLOCKED) -->
+                    <div id="node-attack" class="workflow-node absolute w-72 bg-slate-900/95 rounded-xl border border-rose-800/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 1530px; top: 410px;">
+                        <div class="bg-rose-950/90 border-b border-rose-800/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-rose-100 flex items-center gap-2">
+                                <i class="fa-solid fa-ban text-rose-400"></i>
+                                <span>8. Attack Simulation (Blocked)</span>
+                            </span>
+                            <span class="text-[10px] bg-rose-600 text-white font-bold px-2 py-0.5 rounded tracking-wider uppercase">
+                                DENIED
+                            </span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/90 text-xs">
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1.5 font-mono text-[10px]">
+                                <div class="text-slate-400 font-sans font-semibold border-b border-slate-800 pb-1">User Attempt Details</div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Action Tried:</span>
+                                    <span class="text-rose-400 font-bold">MINT_ASSET</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Resource:</span>
+                                    <span class="text-slate-200">Asset NFT</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-1 border-t border-slate-800">
+                                    <span class="text-slate-500">PolicyEngine Result:</span>
+                                    <span class="bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded font-bold border border-rose-800">Access Denied</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 p-2 rounded border border-slate-800 font-mono text-[10px] space-y-0.5">
+                                <div class="text-slate-500">Tx Hash:</div>
+                                <div class="text-sky-300 font-semibold truncate">0x7a3b...c91e</div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-rose-300 font-medium text-[11px] rounded border border-slate-700 transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> View on Explorer
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2 port-red" data-node="attack" data-port="in"></div>
+                        <div class="port-dot output-port absolute -right-1.5 top-1/2 -translate-y-1/2 port-red" data-node="attack" data-port="out"></div>
+                    </div>
+
+                    <!-- MODULE 9: DOCUMENT RESOURCE -->
+                    <div id="node-docs" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 560px; top: 410px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-file-contract text-cyan-400"></i>
+                                <span>9. Document Resource</span>
+                            </span>
+                            <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">IPFS</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/80 text-xs">
+                            <!-- Document Card 1 -->
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-200 text-[11px]">Doc #1001</span>
+                                    <span class="text-[9px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded font-mono border border-rose-900">PDF</span>
+                                </div>
+                                <div class="text-slate-300 font-medium text-[10px]">Access Policy Document</div>
+                                <div class="text-[9px] font-mono text-emerald-400">Permission: READ</div>
+                            </div>
+
+                            <!-- Document Card 2 -->
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 space-y-0.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-200 text-[11px]">Doc #1002</span>
+                                    <span class="text-[9px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded font-mono border border-rose-900">PDF</span>
+                                </div>
+                                <div class="text-slate-300 text-[10px]">SOP Manual</div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-medium text-[11px] rounded border border-slate-700 transition">
+                                Open Document
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="docs" data-port="in"></div>
+                    </div>
+
+                    <!-- MODULE 10: ADMIN DASHBOARD -->
+                    <div id="node-admin" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 860px; top: 410px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-indigo-400"></i>
+                                <span>10. Admin Dashboard</span>
+                            </span>
+                            <span class="text-[10px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded font-mono">Control</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/80 text-xs">
+                            <div class="text-[10px] text-slate-400 font-medium">Quick-Action Controls</div>
+                            <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+                                <button class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 font-mono text-left truncate">
+                                    + Create DID
+                                </button>
+                                <button class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 font-mono text-left truncate">
+                                    + Assign Role
+                                </button>
+                                <button class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 font-mono text-left truncate">
+                                    + Mint Asset
+                                </button>
+                                <button class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 font-mono text-left truncate">
+                                    + Grant Access
+                                </button>
+                                <button class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 font-mono text-left truncate">
+                                    - Revoke Access
+                                </button>
+                                <button class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 font-mono text-left truncate">
+                                    • View Audit
+                                </button>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] rounded transition shadow-md shadow-indigo-900/30">
+                                Go to Dashboard
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="admin" data-port="in"></div>
+                    </div>
+
+                    <!-- MODULE 11: REPORT GENERATOR -->
+                    <div id="node-report" class="workflow-node absolute w-64 bg-slate-900/95 rounded-xl border border-slate-700/80 shadow-2xl overflow-hidden backdrop-blur" style="left: 1850px; top: 220px;">
+                        <div class="bg-slate-800/90 border-b border-slate-700/80 px-3.5 py-2.5 flex items-center justify-between cursor-move">
+                            <span class="font-bold text-xs text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-file-invoice text-emerald-400"></i>
+                                <span>11. Report Generator</span>
+                            </span>
+                            <span class="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded font-mono">PDF/CSV</span>
+                        </div>
+                        <div class="p-3.5 space-y-2.5 bg-slate-950/80 text-xs">
+                            <div class="text-[10px] text-slate-400 font-medium">Generate Reports</div>
+                            
+                            <!-- Analytics Visual Preview -->
+                            <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 space-y-2">
+                                <div class="flex items-end justify-between h-14 px-1 gap-1">
+                                    <div class="w-1/4 bg-blue-500/80 rounded-t h-2/3"></div>
+                                    <div class="w-1/4 bg-purple-500/80 rounded-t h-full"></div>
+                                    <div class="w-1/4 bg-rose-500/80 rounded-t h-4/5"></div>
+                                    <div class="w-1/4 bg-emerald-500/80 rounded-t h-1/2"></div>
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400 flex justify-between pt-1 border-t border-slate-800">
+                                    <span>Type:</span>
+                                    <span class="text-emerald-400 font-semibold">Security Report</span>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-[11px] rounded transition shadow-md shadow-emerald-900/30 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-file-pdf"></i> Generate PDF
+                            </button>
+                        </div>
+                        <div class="port-dot input-port absolute -left-1.5 top-1/2 -translate-y-1/2" data-node="report" data-port="in"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- BOTTOM FEATURE BAR STRIP -->
+            <div class="bg-slate-900 border-t border-slate-800 px-6 py-3.5 z-30">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-800 text-center">
+                    
+                    <div class="px-2 pt-2 md:pt-0">
+                        <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-cube text-cyan-400"></i> Blockchain Security
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-medium mt-0.5">Immutable & Tamper-proof</div>
+                    </div>
+
+                    <div class="px-2 pt-2 md:pt-0">
+                        <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-id-badge text-blue-400"></i> Decentralized Identity
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-medium mt-0.5">Self-sovereign & Verifiable</div>
+                    </div>
+
+                    <div class="px-2 pt-2 md:pt-0">
+                        <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-key text-purple-400"></i> Smart Access Control
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-medium mt-0.5">Role-based Permissions</div>
+                    </div>
+
+                    <div class="px-2 pt-2 md:pt-0">
+                        <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-gem text-emerald-400"></i> Digital Ownership
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-medium mt-0.5">NFT-backed Assets</div>
+                    </div>
+
+                    <div class="px-2 pt-2 md:pt-0 col-span-2 md:col-span-1">
+                        <div class="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-brain text-rose-400"></i> AI-Powered Security
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-medium mt-0.5">Detect • Analyze • Alert</div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // Definition of workflow connections matching exact spec topology
+        const connectionDefs = [
+            { fromNode: 'wallet', fromPort: 'out', toNode: 'did', toPort: 'in', color: '#38bdf8' },
+            { fromNode: 'did', fromPort: 'out', toNode: 'rbac', toPort: 'in', color: '#818cf8' },
+            { fromNode: 'rbac', fromPort: 'out-assets', toNode: 'assets', toPort: 'in', color: '#34d399' },
+            { fromNode: 'rbac', fromPort: 'out-docs', toNode: 'docs', toPort: 'in', color: '#38bdf8' },
+            { fromNode: 'rbac', fromPort: 'out-docs', toNode: 'admin', toPort: 'in', color: '#818cf8' },
+            { fromNode: 'assets', fromPort: 'out', toNode: 'audit', toPort: 'in', color: '#fbbf24' },
+            { fromNode: 'audit', fromPort: 'out-sec', toNode: 'soc', toPort: 'in-audit', color: '#fbbf24' },
+            { fromNode: 'audit', fromPort: 'out-ai', toNode: 'ai', toPort: 'in', color: '#f87171' },
+            { fromNode: 'ai', fromPort: 'out', toNode: 'attack', toPort: 'in', color: '#f87171' },
+            { fromNode: 'attack', fromPort: 'out', toNode: 'soc', toPort: 'in-attack', color: '#ef4444' },
+            { fromNode: 'soc', fromPort: 'out-report', toNode: 'report', toPort: 'in', color: '#34d399' }
+        ];
+
+        const svgCanvas = document.getElementById('svg-connections');
+        const canvasWrapper = document.getElementById('canvas-wrapper');
+        let isWorkflowActive = true;
+
+        // Calculate cubic bezier curve between ports
+        function getCurvePath(x1, y1, x2, y2) {
+            const dx = Math.abs(x2 - x1) * 0.45;
+            const cx1 = x1 + Math.max(dx, 40);
+            const cy1 = y1;
+            const cx2 = x2 - Math.max(dx, 40);
+            const cy2 = y2;
+            return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+        }
+
+        // Draw and update all SVG connection lines
+        function renderConnections() {
+            svgCanvas.innerHTML = '';
+            const wrapperRect = canvasWrapper.getBoundingClientRect();
+            const scrollLeft = canvasWrapper.scrollLeft;
+            const scrollTop = canvasWrapper.scrollTop;
+
+            connectionDefs.forEach((conn) => {
+                const fromEl = document.querySelector(`[data-node="${conn.fromNode}"][data-port="${conn.fromPort}"]`);
+                const toEl = document.querySelector(`[data-node="${conn.toNode}"][data-port="${conn.toPort}"]`);
+
+                if (fromEl && toEl) {
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+
+                    const x1 = fromRect.left + fromRect.width / 2 - wrapperRect.left + scrollLeft;
+                    const y1 = fromRect.top + fromRect.height / 2 - wrapperRect.top + scrollTop;
+                    const x2 = toRect.left + toRect.width / 2 - wrapperRect.left + scrollLeft;
+                    const y2 = toRect.top + toRect.height / 2 - wrapperRect.top + scrollTop;
+
+                    const pathStr = getCurvePath(x1, y1, x2, y2);
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', pathStr);
+                    path.setAttribute('class', `connection-wire ${isWorkflowActive ? 'active' : ''}`);
+                    path.setAttribute('stroke', conn.color);
+
+                    svgCanvas.appendChild(path);
+                }
+            });
+        }
+
+        // --- Draggable Nodes Engine ---
+        let activeNode = null;
+        let startX = 0, startY = 0;
+        let initialLeft = 0, initialTop = 0;
+
+        document.querySelectorAll('.workflow-node').forEach(node => {
+            const header = node.children[0];
+
+            header.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                activeNode = node;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = parseInt(node.style.left) || 0;
+                initialTop = parseInt(node.style.top) || 0;
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        });
+
+        function onMouseMove(e) {
+            if (!activeNode) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            activeNode.style.left = `${initialLeft + dx}px`;
+            activeNode.style.top = `${initialTop + dy}px`;
+            renderConnections();
+        }
+
+        function onMouseUp() {
+            activeNode = null;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        // --- Toggle Simulation ---
+        const btnToggle = document.getElementById('btn-toggle-flow');
+        const flowIcon = document.getElementById('flow-icon');
+        const flowBtnText = document.getElementById('flow-btn-text');
+
+        btnToggle.addEventListener('click', () => {
+            isWorkflowActive = !isWorkflowActive;
+            if (isWorkflowActive) {
+                btnToggle.classList.replace('bg-slate-700', 'bg-emerald-600');
+                btnToggle.classList.replace('hover:bg-slate-600', 'hover:bg-emerald-500');
+                flowIcon.className = 'fa-solid fa-pause';
+                flowBtnText.innerText = 'Pause Execution';
+            } else {
+                btnToggle.classList.replace('bg-emerald-600', 'bg-slate-700');
+                btnToggle.classList.replace('hover:bg-emerald-500', 'hover:bg-slate-600');
+                flowIcon.className = 'fa-solid fa-play';
+                flowBtnText.innerText = 'Resume Execution';
+            }
+            renderConnections();
+        });
+
+        // --- Reset Layout Positions ---
+        document.getElementById('btn-reset-layout').addEventListener('click', () => {
+            document.getElementById('node-wallet').style.left = '40px';
+            document.getElementById('node-wallet').style.top = '40px';
+
+            document.getElementById('node-did').style.left = '335px';
+            document.getElementById('node-did').style.top = '40px';
+
+            document.getElementById('node-rbac').style.left = '630px';
+            document.getElementById('node-rbac').style.top = '40px';
+
+            document.getElementById('node-assets').style.left = '925px';
+            document.getElementById('node-assets').style.top = '40px';
+
+            document.getElementById('node-audit').style.left = '1220px';
+            document.getElementById('node-audit').style.top = '40px';
+
+            document.getElementById('node-soc').style.left = '1530px';
+            document.getElementById('node-soc').style.top = '40px';
+
+            document.getElementById('node-docs').style.left = '560px';
+            document.getElementById('node-docs').style.top = '410px';
+
+            document.getElementById('node-admin').style.left = '860px';
+            document.getElementById('node-admin').style.top = '410px';
+
+            document.getElementById('node-ai').style.left = '1180px';
+            document.getElementById('node-ai').style.top = '410px';
+
+            document.getElementById('node-attack').style.left = '1530px';
+            document.getElementById('node-attack').style.top = '410px';
+
+            document.getElementById('node-report').style.left = '1850px';
+            document.getElementById('node-report').style.top = '220px';
+
+            renderConnections();
+        });
+
+        // Window resize and scroll sync
+        canvasWrapper.addEventListener('scroll', renderConnections);
+        window.addEventListener('load', renderConnections);
+        window.addEventListener('resize', renderConnections);
+    </script>
+</body>
+</html>

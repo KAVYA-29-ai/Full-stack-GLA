@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSS Selectors</title>
+  <style>
+   
+    section h2 {
+      color: green;
+    }
+
+    section > h2 {
+      color: red;
+    }
+
+    h2 + p {
+      color: orange;
+    }
+
+    h2-p {
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <h2>This is a heading inside a section</h2>
+    <p>This is a paragraph inside a section.</p>
+
+    <div>
+      <h2>This is a heading inside a div</h2>
+      <p>This is a paragraph inside a div.</p>
+    </div>
+  </section>
+
+  <h2-p>This is a custom element styled with  selector.</h2-p>
+</body>
+</html>

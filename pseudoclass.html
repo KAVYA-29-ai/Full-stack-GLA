@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>pseudo class</title>
+</head>
+<style>
+    #box1,
+    #box2,
+    #box3 {
+        width: 200px;
+        height: 200px;
+        margin: 10px;
+        background-color: rgb(210, 167, 167);
+        border-width: 10px;
+        border-color: bisque;
+    }
+
+    #box1:hover {
+        background-color: red;
+        box-shadow: 15px 15px 20px black;
+        border-radius: 10%;
+    }
+
+    #box2:hover {
+        background-color: yellow;
+        box-shadow: inset 15px 15px 20px 0px black;
+        border-radius: 10%;
+    }
+
+    #box3:hover {
+        background-color: green;
+        box-shadow: 15px 15px 20px black;
+        border-radius: 10%;
+    }
+
+    #box1:focus {
+        background-color: red;
+    }
+
+    #box2:focus {
+        background-color: yellow;
+    }
+
+    #box3:focus {
+        background-color: green;
+    }
+
+    #box1:active {
+        background-color: blue;
+        box-shadow: 0 0 0 transparent;
+        border-style: groove;
+        border-width: 10px;
+        border-radius: 10%;
+    }
+
+    #box2:active {
+        background-color: blue;
+        box-shadow: 0 0 0 transparent;
+        border-radius: 10%;
+        border-width: 10px;
+        border-radius: 10%;
+    }
+
+    #box3:active {
+        background-color: blue;
+        box-shadow: 0 0 0 transparent;
+        border-radius: 10%;
+        border-width: 10px;
+        border-radius: 10%;
+    }
+
+    a:link {
+        color: red;
+    }
+
+    a:visited {
+        color: green;
+    }
+
+    a:hover {
+        color: blue;
+    }
+
+    a:active {
+        color: yellow;
+    }
+
+    input {
+        margin: 3px;
+    }
+
+    input:required {
+        border: 2px solid blue;
+        font-family: monospace;
+    }
+
+    input:optional {
+        border: 2px solid yellow;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    input:valid {
+        color: green;
+    }
+
+    input:invalid {
+        color: red;
+    }
+
+    input:in-range {
+        border: 2px solid green;
+    }
+
+    input:out-of-range {
+        border: 2px solid red;
+    }
+
+    input:read-write {
+        border: 2px solid blue;
+    }
+
+    input:read-only {
+        background-color: transparent;
+        border: transparent;
+    }
+
+    input:checked {
+        outline: 2px solid rgb(255, 0, 255);
+    }
+
+    input:placeholder-shown {
+        font-size: 20px;
+    }
+
+    button:hover {
+        background-color: lightblue;
+        cursor: pointer;
+    }
+
+    li:nth-child(odd) {
+        color: aqua;
+    }
+
+    li:nth-child(even) {
+        background-color: green;
+    }
+
+    li:nth-child(3) {
+        background-color: red;
+    }
+</style>
+</head>
+
+<body>
+
+    <button type="button" id="box1">Hover me</button>
+    <button type="button" id="box2">Hover me</button>
+    <button type="button" id="box3">Hover me</button>
+
+    <br><br>
+    <a href="https://www.google.com">Google</a>
+    <a href="https://student.glauniversity.in/Home/Index">Something</a>
+
+    <br><br>
+    <form>
+        <input type="text" placeholder="Mr" readonly>
+        <br>
+        <input type="text" placeholder="Enter your name" required>
+        <br>
+        <input type="text" placeholder="middle name ">
+        <br>
+        <input type="email" placeholder="Enter your email" optional> <br>
+        <input type="number" placeholder="Age" min="10" max="50" required>
+        <br>
+        <input type="checkbox"> Check me<br>
+
+        <input type="radio" name="option"> Radio me<br>
+        <input type="submit" value="Submit">
+    </form>
+
+
+    <ul>
+        <li>hello</li>
+        <li>hello</li>
+        <li>hello</li>
+    </ul>
+
+</body>
+
+</html>
+
+
+
+</form>
+
+</body>
+
+</html>

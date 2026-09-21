@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Worm - Level Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sniglet:wght@400;800&display=swap');
+
+        body {
+            font-family: 'Sniglet', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #E0F6FF 60%, #B0E0E6 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .game-title {
+            font-family: 'Fredoka One', cursive;
+            text-shadow: 3px 3px 0px #2D5A27, 6px 6px 0px rgba(0,0,0,0.15);
+        }
+
+        .btn-wood {
+            background: linear-gradient(180deg, #A0522D 0%, #6B3E26 100%);
+            border: 3px solid #4A2B19;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 4px 6px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .btn-wood:hover {
+            background: linear-gradient(180deg, #B55E33 0%, #7C482C 100%);
+            transform: translateY(-2px);
+        }
+
+        .btn-wood:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn-green {
+            background: linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%);
+            border: 3px solid #1B5E20;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 4px 6px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .btn-green:hover {
+            background: linear-gradient(180deg, #66BB6A 0%, #388E3C 100%);
+            transform: translateY(-2px);
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            filter: drop-shadow(0px 12px 20px rgba(0, 0, 0, 0.25));
+        }
+
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-slate-800">
+
+    <!-- Header Controls & Title -->
+    <header class="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-3 mb-2">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500 border-4 border-emerald-700 flex items-center justify-center text-white text-2xl shadow-lg transform -rotate-6">
+                🐛
+            </div>
+            <div>
+                <h1 class="game-title text-3xl sm:text-4xl text-white tracking-wide">APPLE WORM</h1>
+                <p class="text-xs sm:text-sm font-bold text-emerald-900 opacity-80">Recreated Level Challenge</p>
+            </div>
+        </div>
+
+        <!-- Level Stats Bar -->
+        <div class="flex items-center gap-2 sm:gap-4 bg-white/80 backdrop-blur px-4 py-2 rounded-2xl border-2 border-white/60 shadow-md">
+            <div class="flex items-center gap-1.5 text-rose-600 font-extrabold text-sm sm:text-base">
+                <span class="text-xl">🍎</span>
+                <span id="appleCount">0 / 0</span>
+            </div>
+            <div class="h-6 w-0.5 bg-slate-300"></div>
+            <div class="flex items-center gap-1.5 text-amber-700 font-extrabold text-sm sm:text-base">
+                <i class="fa-solid fa-shoe-prints text-amber-600"></i>
+                <span id="stepCount">0</span>
+            </div>
+            <div class="h-6 w-0.5 bg-slate-300"></div>
+            <button id="soundToggle" class="text-slate-600 hover:text-emerald-600 text-lg transition-colors p-1" title="Toggle Audio">
+                <i class="fa-solid fa-volume-high" id="soundIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="relative w-full max-w-4xl flex flex-col items-center">
+        <!-- Canvas Frame -->
+        <div class="relative w-full aspect-[16/10] bg-sky-200/50 rounded-3xl p-2 sm:p-3 border-4 border-white/80 shadow-2xl flex items-center justify-center overflow-hidden">
+            <canvas id="gameCanvas" class="w-full h-full rounded-2xl bg-sky-300/30"></canvas>
+
+            <!-- Level Overlay Banner / Pause -->
+            <div id="levelOverlay" class="hidden absolute inset-0 modal-backdrop rounded-3xl flex flex-col items-center justify-center p-6 text-white text-center z-20">
+                <div class="text-6xl mb-2 animate-bounce">🎉</div>
+                <h2 class="text-4xl font-extrabold mb-2 text-yellow-300 drop-shadow-md">LEVEL COMPLETED!</h2>
+                <p id="winMessage" class="text-lg text-emerald-100 mb-6">You guided the worm into the portal!</p>
+                <div class="flex gap-4">
+                    <button id="replayBtn" class="btn-wood px-6 py-3 rounded-2xl text-white font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Play Again
+                    </button>
+                    <button id="nextLevelBtn" class="btn-green px-6 py-3 rounded-2xl text-white font-bold flex items-center gap-2">
+                        Next Level <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="w-full mt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
+                <button id="undoBtn" class="btn-wood px-4 py-2.5 rounded-xl text-white text-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Undo
+                </button>
+                <button id="restartBtn" class="btn-wood px-4 py-2.5 rounded-xl text-white text-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate"></i> Reset
+                </button>
+                <button id="selectLevelBtn" class="btn-wood px-4 py-2.5 rounded-xl text-white text-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-list"></i> Levels
+                </button>
+                <button id="editorBtn" class="btn-wood px-4 py-2.5 rounded-xl text-white text-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-pen-ruler"></i> Editor
+                </button>
+            </div>
+
+            <!-- On-Screen D-Pad / Touch Controls -->
+            <div class="grid grid-cols-3 gap-1.5 w-36 h-28 sm:w-44 sm:h-32 p-1.5 bg-white/70 backdrop-blur rounded-2xl border border-white shadow-inner">
+                <div></div>
+                <button id="btnUp" class="btn-wood rounded-xl flex items-center justify-center text-white text-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-caret-up"></i>
+                </button>
+                <div></div>
+                <button id="btnLeft" class="btn-wood rounded-xl flex items-center justify-center text-white text-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-caret-left"></i>
+                </button>
+                <button id="btnDown" class="btn-wood rounded-xl flex items-center justify-center text-white text-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <button id="btnRight" class="btn-wood rounded-xl flex items-center justify-center text-white text-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-caret-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Level Selector Modal -->
+    <div id="levelModal" class="hidden fixed inset-0 modal-backdrop z-30 flex items-center justify-center p-4">
+        <div class="bg-amber-50 rounded-3xl border-4 border-amber-800 p-6 max-w-md w-full shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-black text-amber-900">Select Level</h3>
+                <button id="closeLevelModal" class="text-amber-800 hover:text-amber-950 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-4" id="levelGrid">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Editor Modal / Toolbar -->
+    <div id="editorToolbar" class="hidden w-full max-w-4xl bg-amber-100/95 border-2 border-amber-800 rounded-2xl p-3 mt-2 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+        <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-amber-900 text-sm">Tool:</span>
+            <button class="tool-btn bg-amber-700 text-white px-3 py-1 rounded-lg text-xs font-bold" data-tool="1">🧱 Wall</button>
+            <button class="tool-btn bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-xs font-bold" data-tool="4">🍎 Apple</button>
+            <button class="tool-btn bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-xs font-bold" data-tool="2">⚠️ Spike</button>
+            <button class="tool-btn bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-xs font-bold" data-tool="3">🌀 Portal</button>
+            <button class="tool-btn bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-xs font-bold" data-tool="WORM">🐛 Worm</button>
+            <button class="tool-btn bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-xs font-bold" data-tool="0">🧹 Eraser</button>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="testCustomBtn" class="btn-green px-3 py-1 rounded-lg text-white text-xs font-bold">Play Test</button>
+            <button id="clearEditorBtn" class="btn-wood px-3 py-1 rounded-lg text-white text-xs font-bold">Clear</button>
+        </div>
+    </div>
+
+    <!-- Instructions Footer -->
+    <footer class="mt-3 text-center text-xs font-bold text-sky-900/80">
+        Controls: <span class="bg-white/60 px-1.5 py-0.5 rounded border">Arrow Keys / WASD</span> to slither &bull; <span class="bg-white/60 px-1.5 py-0.5 rounded border">Z</span> to Undo &bull; <span class="bg-white/60 px-1.5 py-0.5 rounded border">R</span> to Restart
+    </footer>
+
+    <script>
+        // Audio Synthesizer using Web Audio API
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+            }
+
+            playMove() {
+                if (!this.enabled || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(280, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(420, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playEat() {
+                if (!this.enabled || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.15);
+            }
+
+            playFall() {
+                if (!this.enabled || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(120, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.2);
+            }
+
+            playHurt() {
+                if (!this.enabled || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(60, now + 0.25);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.25);
+            }
+
+            playWin() {
+                if (!this.enabled || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [440, 554.37, 659.25, 880];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.2);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        // Tile types
+        const TILE = {
+            EMPTY: 0,
+            WALL: 1,
+            SPIKE: 2,
+            PORTAL: 3,
+            APPLE: 4
+        };
+
+        const GRID_COLS = 18;
+        const GRID_ROWS = 13;
+
+        // Level Definitions
+        const LEVELS = [
+            {
+                id: 1,
+                name: "Massive Vault (Original)",
+                description: "Recreated level from your image with huge apple matrix!",
+                wormStart: [{x: 15, y: 1}, {x: 15, y: 2}],
+                wormDir: {x: 0, y: -1},
+                grid: (function() {
+                    let g = Array(GRID_ROWS).fill(0).map(() => Array(GRID_COLS).fill(TILE.EMPTY));
+                    
+                    // Main Brown Wooden Frame (C-shape)
+                    // Top horizontal bar (y=2, x=2..15)
+                    for (let x = 2; x <= 15; x++) g[2][x] = TILE.WALL;
+                    // Left vertical wall (x=2..3, y=2..10)
+                    for (let y = 2; y <= 10; y++) {
+                        g[y][2] = TILE.WALL;
+                        g[y][3] = TILE.WALL;
+                    }
+                    // Bottom horizontal bar (y=10, x=2..14)
+                    for (let x = 2; x <= 14; x++) g[10][x] = TILE.WALL;
+
+                    // Portal at top left (x=2, y=1)
+                    g[1][2] = TILE.PORTAL;
+
+                    // Spikes on top surface (y=1, x=3..8)
+                    for (let x = 3; x <= 8; x++) g[1][x] = TILE.SPIKE;
+
+                    // Massive Apple Matrix inside upper cavity (y=3..6, x=4..14)
+                    for (let y = 3; y <= 6; y++) {
+                        for (let x = 4; x <= 14; x++) {
+                            g[y][x] = TILE.APPLE;
+                        }
+                    }
+
+                    // Stacked apples on bottom platform (x=10, y=9 & y=8)
+                    g[9][10] = TILE.APPLE;
+                    g[8][10] = TILE.APPLE;
+
+                    // Outer perimeter apples (Left vertical column x=1, y=3..10)
+                    for (let y = 3; y <= 10; y++) g[y][1] = TILE.APPLE;
+
+                    // Outer perimeter apples (Bottom row y=11, x=1..15)
+                    for (let x = 1; x <= 15; x++) g[11][x] = TILE.APPLE;
+
+                    // Outer perimeter apples (Right tip x=15, y=10)
+                    g[10][15] = TILE.APPLE;
+
+                    return g;
+                })()
+            },
+            {
+                id: 2,
+                name: "Spike Hop Intro",
+                wormStart: [{x: 2, y: 8}, {x: 1, y: 8}],
+                wormDir: {x: 1, y: 0},
+                grid: (function() {
+                    let g = Array(GRID_ROWS).fill(0).map(() => Array(GRID_COLS).fill(TILE.EMPTY));
+                    for (let x = 1; x <= 16; x++) g[9][x] = TILE.WALL;
+                    g[8][6] = TILE.SPIKE;
+                    g[8][7] = TILE.SPIKE;
+                    g[8][4] = TILE.APPLE;
+                    g[8][10] = TILE.APPLE;
+                    g[8][14] = TILE.PORTAL;
+                    return g;
+                })()
+            },
+            {
+                id: 3,
+                name: "Apple Overhang",
+                wormStart: [{x: 3, y: 10}, {x: 2, y: 10}],
+                wormDir: {x: 1, y: 0},
+                grid: (function() {
+                    let g = Array(GRID_ROWS).fill(0).map(() => Array(GRID_COLS).fill(TILE.EMPTY));
+                    for (let x = 1; x <= 6; x++) g[11][x] = TILE.WALL;
+                    for (let x = 10; x <= 16; x++) g[11][x] = TILE.WALL;
+                    g[10][5] = TILE.APPLE;
+                    g[9][8] = TILE.APPLE;
+                    g[8][8] = TILE.APPLE;
+                    g[10][15] = TILE.PORTAL;
+                    for (let x = 7; x <= 9; x++) g[12][x] = TILE.SPIKE;
+                    return g;
+                })()
+            }
+        ];
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentLevelIdx = 0;
+        let grid = [];
+        let worm = []; // array of {x, y}
+        let totalApples = 0;
+        let applesEaten = 0;
+        let stepsCount = 0;
+        let historyStack = [];
+        let isGameOver = false;
+        let isWon = false;
+        let animFrameId = null;
+        let editorMode = false;
+        let activeTool = TILE.WALL;
+
+        // Particle Effects System
+        let particles = [];
+
+        function addParticles(x, y, color, count = 8) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6 - 2,
+                    size: Math.random() * 6 + 3,
+                    color: color,
+                    life: 1.0,
+                    decay: Math.random() * 0.04 + 0.02
+                });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2; // gravity
+                p.life -= p.decay;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function loadLevel(idx) {
+            currentLevelIdx = idx;
+            const lvl = LEVELS[idx];
+            grid = JSON.parse(JSON.stringify(lvl.grid));
+            worm = JSON.parse(JSON.stringify(lvl.wormStart));
+            
+            // Count total apples
+            totalApples = 0;
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    if (grid[r][c] === TILE.APPLE) totalApples++;
+                }
+            }
+            applesEaten = 0;
+            stepsCount = 0;
+            historyStack = [];
+            isGameOver = false;
+            isWon = false;
+            document.getElementById('levelOverlay').classList.add('hidden');
+            updateUI();
+            saveState();
+        }
+
+        function saveState() {
+            historyStack.push({
+                grid: JSON.parse(JSON.stringify(grid)),
+                worm: JSON.parse(JSON.stringify(worm)),
+                applesEaten: applesEaten,
+                stepsCount: stepsCount,
+                isGameOver: isGameOver,
+                isWon: isWon
+            });
+        }
+
+        function undo() {
+            if (historyStack.length > 1) {
+                historyStack.pop(); // Remove current
+                const prev = historyStack[historyStack.length - 1];
+                grid = JSON.parse(JSON.stringify(prev.grid));
+                worm = JSON.parse(JSON.stringify(prev.worm));
+                applesEaten = prev.applesEaten;
+                stepsCount = prev.stepsCount;
+                isGameOver = prev.isGameOver;
+                isWon = prev.isWon;
+                document.getElementById('levelOverlay').classList.add('hidden');
+                sound.playMove();
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('appleCount').innerText = `${applesEaten} / ${totalApples}`;
+            document.getElementById('stepCount').innerText = stepsCount;
+        }
+
+        function moveWorm(dx, dy) {
+            if (isGameOver || isWon) return;
+            sound.init();
+
+            const head = worm[0];
+            const targetX = head.x + dx;
+            const targetY = head.y + dy;
+
+            // 1. Check world bounds
+            if (targetX < 0 || targetX >= GRID_COLS || targetY < 0 || targetY >= GRID_ROWS) return;
+
+            // 2. Check head solid tile collisions
+            const targetTile = grid[targetY][targetX];
+            if (targetTile === TILE.WALL || targetTile === TILE.SPIKE) return;
+
+            // 3. Check self collision (head cannot hit body, except tail if tail will retract)
+            const eatsApple = (targetTile === TILE.APPLE);
+            const tailIndex = worm.length - 1;
+            for (let i = 0; i < worm.length; i++) {
+                // If not eating apple, tail moves out of the way
+                if (!eatsApple && i === tailIndex) continue;
+                if (worm[i].x === targetX && worm[i].y === targetY) {
+                    return; // Collision with body
+                }
+            }
+
+            // Valid Move! Perform step:
+            stepsCount++;
+            let newWorm = [{x: targetX, y: targetY}];
+
+            // If ate apple:
+            if (eatsApple) {
+                grid[targetY][targetX] = TILE.EMPTY;
+                applesEaten++;
+                sound.playEat();
+                
+                // Add graphics particles for apple
+                const tileSize = canvas.width / GRID_COLS;
+                addParticles((targetX + 0.5) * tileSize, (targetY + 0.5) * tileSize, '#EF4444', 12);
+
+                // Body grows by 1 (keep full body)
+                for (let seg of worm) {
+                    newWorm.push({x: seg.x, y: seg.y});
+                }
+            } else {
+                sound.playMove();
+                // Move body segments down the chain
+                for (let i = 0; i < worm.length - 1; i++) {
+                    newWorm.push({x: worm[i].x, y: worm[i].y});
+                }
+            }
+
+            worm = newWorm;
+
+            // 4. Check Portal Win Condition immediately
+            if (grid[targetY][targetX] === TILE.PORTAL) {
+                triggerWin();
+                saveState();
+                updateUI();
+                return;
+            }
+
+            // 5. Gravity Physics Check
+            applyGravity();
+
+            saveState();
+            updateUI();
+        }
+
+        function isSupported(wormBody) {
+            // A worm is supported if ANY of its segments sits on top of a WALL or APPLE
+            for (let seg of wormBody) {
+                const belowY = seg.y + 1;
+                if (belowY < GRID_ROWS) {
+                    const tileBelow = grid[belowY][seg.x];
+                    if (tileBelow === TILE.WALL || tileBelow === TILE.APPLE) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function applyGravity() {
+            let falls = 0;
+            while (!isSupported(worm)) {
+                // Drop whole worm 1 tile down
+                falls++;
+                let hitSpike = false;
+                let fellOut = false;
+
+                for (let seg of worm) {
+                    seg.y += 1;
+                    if (seg.y >= GRID_ROWS) {
+                        fellOut = true;
+                    } else if (grid[seg.y][seg.x] === TILE.SPIKE) {
+                        hitSpike = true;
+                    }
+                }
+
+                if (hitSpike || fellOut) {
+                    isGameOver = true;
+                    sound.playHurt();
+                    // Particle burst for worm death
+                    const tileSize = canvas.width / GRID_COLS;
+                    addParticles((worm[0].x + 0.5) * tileSize, (worm[0].y + 0.5) * tileSize, '#22C55E', 15);
+                    break;
+                }
+
+                // Check if head landed in portal during drop
+                if (grid[worm[0].y][worm[0].x] === TILE.PORTAL) {
+                    triggerWin();
+                    return;
+                }
+            }
+
+            if (falls > 0 && !isGameOver) {
+                sound.playFall();
+            }
+        }
+
+        function triggerWin() {
+            isWon = true;
+            sound.playWin();
+            const tileSize = canvas.width / GRID_COLS;
+            addParticles((worm[0].x + 0.5) * tileSize, (worm[0].y + 0.5) * tileSize, '#FBBF24', 25);
+            document.getElementById('winMessage').innerText = `Completed in ${stepsCount} steps!`;
+            document.getElementById('levelOverlay').classList.remove('hidden');
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const tileSize = canvas.width / GRID_COLS;
+
+            // Draw Background Grid / Pattern
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    if ((r + c) % 2 === 0) {
+                        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                    }
+                }
+            }
+
+            // 1. Draw Grid Elements
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    const tile = grid[r][c];
+                    const x = c * tileSize;
+                    const y = r * tileSize;
+
+                    if (tile === TILE.WALL) {
+                        // Wooden block matching image styling
+                        ctx.fillStyle = "#5A3018";
+                        ctx.fillRect(x, y, tileSize, tileSize);
+
+                        // Inner wood bevel / shadow
+                        ctx.fillStyle = "#7A4324";
+                        ctx.fillRect(x + 2, y + 2, tileSize - 4, tileSize - 4);
+
+                        ctx.fillStyle = "#3D1E0E";
+                        ctx.fillRect(x + tileSize - 4, y, 4, tileSize);
+                        ctx.fillRect(x, y + tileSize - 4, tileSize, 4);
+
+                    } else if (tile === TILE.SPIKE) {
+                        // Sharp Metallic Spikes
+                        ctx.fillStyle = "#374151";
+                        const spikesCount = 3;
+                        const w = tileSize / spikesCount;
+                        for (let i = 0; i < spikesCount; i++) {
+                            ctx.beginPath();
+                            ctx.moveTo(x + i * w, y + tileSize);
+                            ctx.lineTo(x + (i + 0.5) * w, y + 4);
+                            ctx.lineTo(x + (i + 1) * w, y + tileSize);
+                            ctx.closePath();
+                            ctx.fill();
+
+                            // Spike highlight
+                            ctx.strokeStyle = "#9CA3AF";
+                            ctx.lineWidth = 1.5;
+                            ctx.beginPath();
+                            ctx.moveTo(x + i * w, y + tileSize);
+                            ctx.lineTo(x + (i + 0.5) * w, y + 4);
+                            ctx.stroke();
+                        }
+
+                    } else if (tile === TILE.PORTAL) {
+                        // Animated Vortex Black Hole Portal
+                        const time = Date.now() * 0.003;
+                        const cx = x + tileSize / 2;
+                        const cy = y + tileSize / 2;
+                        const rMax = tileSize * 0.45;
+
+                        ctx.save();
+                        ctx.translate(cx, cy);
+                        ctx.rotate(time);
+
+                        // Outer glow
+                        ctx.beginPath();
+                        ctx.arc(0, 0, rMax + 2, 0, Math.PI * 2);
+                        ctx.fillStyle = "#818CF8";
+                        ctx.fill();
+
+                        // Concentric dark swirling rings
+                        for (let i = 4; i > 0; i--) {
+                            ctx.beginPath();
+                            ctx.arc(0, 0, (rMax * i) / 4, 0, Math.PI * 2);
+                            ctx.fillStyle = i % 2 === 0 ? "#1E1B4B" : "#312E81";
+                            ctx.fill();
+                        }
+
+                        // Black Hole Center
+                        ctx.beginPath();
+                        ctx.arc(0, 0, rMax * 0.3, 0, Math.PI * 2);
+                        ctx.fillStyle = "#000000";
+                        ctx.fill();
+
+                        ctx.restore();
+
+                    } else if (tile === TILE.APPLE) {
+                        // Shiny Red Apple with Stem and Leaf
+                        const cx = x + tileSize / 2;
+                        const cy = y + tileSize / 2 + 1;
+                        const radius = tileSize * 0.38;
+
+                        // Apple shadow
+                        ctx.fillStyle = "rgba(0,0,0,0.15)";
+                        ctx.beginPath();
+                        ctx.ellipse(cx, cy + radius * 0.8, radius * 0.7, radius * 0.25, 0, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Apple body
+                        ctx.fillStyle = "#DC2626";
+                        ctx.beginPath();
+                        ctx.arc(cx - radius * 0.3, cy - radius * 0.1, radius * 0.65, 0, Math.PI * 2);
+                        ctx.arc(cx + radius * 0.3, cy - radius * 0.1, radius * 0.65, 0, Math.PI * 2);
+                        ctx.arc(cx, cy + radius * 0.2, radius * 0.65, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Apple Highlight
+                        ctx.fillStyle = "rgba(255,255,255,0.4)";
+                        ctx.beginPath();
+                        ctx.arc(cx - radius * 0.35, cy - radius * 0.3, radius * 0.2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Stem
+                        ctx.strokeStyle = "#78350F";
+                        ctx.lineWidth = 2.5;
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy - radius * 0.5);
+                        ctx.quadraticCurveTo(cx + 3, cy - radius * 0.9, cx + 5, cy - radius * 0.9);
+                        ctx.stroke();
+
+                        // Leaf
+                        ctx.fillStyle = "#16A34A";
+                        ctx.beginPath();
+                        ctx.ellipse(cx + 4, cy - radius * 0.75, 4, 2, Math.PI / 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // 2. Draw Worm Character
+            if (worm.length > 0) {
+                // Draw Body Segments
+                for (let i = worm.length - 1; i >= 0; i--) {
+                    const seg = worm[i];
+                    const cx = (seg.x + 0.5) * tileSize;
+                    const cy = (seg.y + 0.5) * tileSize;
+                    const segRadius = tileSize * 0.42;
+
+                    // Worm shadow
+                    ctx.fillStyle = "rgba(0,0,0,0.15)";
+                    ctx.beginPath();
+                    ctx.arc(cx, cy + 3, segRadius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Worm segment body (Gradient green)
+                    const isHead = (i === 0);
+                    ctx.fillStyle = isHead ? "#22C55E" : "#16A34A";
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, segRadius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Segment inner highlight
+                    ctx.fillStyle = "rgba(255,255,255,0.25)";
+                    ctx.beginPath();
+                    ctx.arc(cx - segRadius * 0.3, cy - segRadius * 0.3, segRadius * 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Segment stripe/ring detail
+                    ctx.strokeStyle = "#15803D";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, segRadius * 0.8, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Draw Head Eyes & Cheeks
+                    if (isHead) {
+                        // Pink cheeks
+                        ctx.fillStyle = "#F472B6";
+                        ctx.beginPath();
+                        ctx.arc(cx - segRadius * 0.5, cy + segRadius * 0.2, 3.5, 0, Math.PI * 2);
+                        ctx.arc(cx + segRadius * 0.5, cy + segRadius * 0.2, 3.5, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Big Googly White Eyes
+                        const eyeOffset = segRadius * 0.35;
+                        const eyeRadius = segRadius * 0.32;
+
+                        // Eye whites
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.beginPath();
+                        ctx.arc(cx - eyeOffset, cy - eyeOffset, eyeRadius, 0, Math.PI * 2);
+                        ctx.arc(cx + eyeOffset, cy - eyeOffset, eyeRadius, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = "#000000";
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+
+                        // Eye pupils
+                        ctx.fillStyle = "#000000";
+                        ctx.beginPath();
+                        ctx.arc(cx - eyeOffset + 1, cy - eyeOffset, eyeRadius * 0.4, 0, Math.PI * 2);
+                        ctx.arc(cx + eyeOffset + 1, cy - eyeOffset, eyeRadius * 0.4, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Pupil reflection
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.beginPath();
+                        ctx.arc(cx - eyeOffset, cy - eyeOffset - 1, 1.5, 0, Math.PI * 2);
+                        ctx.arc(cx + eyeOffset, cy - eyeOffset - 1, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // 3. Draw Particle Effects
+            updateParticles();
+            for (let p of particles) {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+
+            animFrameId = requestAnimationFrame(render);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'KeyW'].includes(e.code)) moveWorm(0, -1);
+            else if (['ArrowDown', 'KeyS'].includes(e.code)) moveWorm(0, 1);
+            else if (['ArrowLeft', 'KeyA'].includes(e.code)) moveWorm(-1, 0);
+            else if (['ArrowRight', 'KeyD'].includes(e.code)) moveWorm(1, 0);
+            else if (e.code === 'KeyZ') undo();
+            else if (e.code === 'KeyR') loadLevel(currentLevelIdx);
+        });
+
+        document.getElementById('btnUp').addEventListener('click', () => moveWorm(0, -1));
+        document.getElementById('btnDown').addEventListener('click', () => moveWorm(0, 1));
+        document.getElementById('btnLeft').addEventListener('click', () => moveWorm(-1, 0));
+        document.getElementById('btnRight').addEventListener('click', () => moveWorm(1, 0));
+
+        document.getElementById('undoBtn').addEventListener('click', undo);
+        document.getElementById('restartBtn').addEventListener('click', () => loadLevel(currentLevelIdx));
+        document.getElementById('replayBtn').addEventListener('click', () => loadLevel(currentLevelIdx));
+        document.getElementById('nextLevelBtn').addEventListener('click', () => {
+            const nextIdx = (currentLevelIdx + 1) % LEVELS.length;
+            loadLevel(nextIdx);
+        });
+
+        // Sound toggle
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            sound.enabled = !sound.enabled;
+            document.getElementById('soundIcon').className = sound.enabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+        });
+
+        // Level Selector Modal UI
+        const levelModal = document.getElementById('levelModal');
+        const levelGrid = document.getElementById('levelGrid');
+
+        document.getElementById('selectLevelBtn').addEventListener('click', () => {
+            levelGrid.innerHTML = '';
+            LEVELS.forEach((lvl, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `p-4 rounded-2xl font-bold border-2 text-left transition-all ${idx === currentLevelIdx ? 'bg-amber-500 text-white border-amber-700 shadow-lg' : 'bg-white text-amber-900 border-amber-200 hover:bg-amber-100'}`;
+                btn.innerHTML = `
+                    <div class="text-xs uppercase tracking-wider opacity-80">Level ${idx + 1}</div>
+                    <div class="text-base">${lvl.name}</div>
+                `;
+                btn.addEventListener('click', () => {
+                    loadLevel(idx);
+                    levelModal.classList.add('hidden');
+                });
+                levelGrid.appendChild(btn);
+            });
+            levelModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeLevelModal').addEventListener('click', () => {
+            levelModal.classList.add('hidden');
+        });
+
+        // Editor Toolbar & Canvas Clicking
+        const editorToolbar = document.getElementById('editorToolbar');
+        document.getElementById('editorBtn').addEventListener('click', () => {
+            editorMode = !editorMode;
+            if (editorMode) {
+                editorToolbar.classList.remove('hidden');
+            } else {
+                editorToolbar.classList.add('hidden');
+            }
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn').forEach(b => {
+                    b.classList.remove('bg-amber-700', 'text-white');
+                    b.classList.add('bg-amber-200', 'text-amber-900');
+                });
+                btn.classList.remove('bg-amber-200', 'text-amber-900');
+                btn.classList.add('bg-amber-700', 'text-white');
+                const toolVal = btn.getAttribute('data-tool');
+                activeTool = toolVal === 'WORM' ? 'WORM' : parseInt(toolVal, 10);
+            });
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (!editorMode) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+
+            const tileSize = canvas.width / GRID_COLS;
+            const c = Math.floor(clickX / tileSize);
+            const r = Math.floor(clickY / tileSize);
+
+            if (c >= 0 && c < GRID_COLS && r >= 0 && r < GRID_ROWS) {
+                if (activeTool === 'WORM') {
+                    worm = [{x: c, y: r}, {x: c, y: r + 1}];
+                } else {
+                    grid[r][c] = activeTool;
+                }
+                saveState();
+            }
+        });
+
+        document.getElementById('clearEditorBtn').addEventListener('click', () => {
+            grid = Array(GRID_ROWS).fill(0).map(() => Array(GRID_COLS).fill(TILE.EMPTY));
+            worm = [{x: 2, y: 2}, {x: 2, y: 3}];
+            saveState();
+        });
+
+        document.getElementById('testCustomBtn').addEventListener('click', () => {
+            editorMode = false;
+            editorToolbar.classList.add('hidden');
+            // Re-count apples
+            totalApples = 0;
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    if (grid[r][c] === TILE.APPLE) totalApples++;
+                }
+            }
+            applesEaten = 0;
+            stepsCount = 0;
+            isGameOver = false;
+            isWon = false;
+            updateUI();
+            saveState();
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        window.onload = function() {
+            resizeCanvas();
+            loadLevel(0); // Load Level 1 (The massive vault level in screenshot)
+            render();
+        };
+    </script>
+</body>
+</html>

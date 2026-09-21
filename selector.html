@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS Selectors</title>
+
+    <style>
+
+        button{
+            width: 100px;
+            height: 40px;
+        }
+        button.active {
+            background-color: red;
+            color: white;
+        }
+
+        h1 {
+            border: 2px solid green;
+            background-color: beige;
+            padding: 10px;
+        }
+
+        p {
+            border: 2px solid red;
+            background-color: lightcoral;
+            padding: 10px;
+        }
+
+        input[type="text"] {
+            border: 2px solid blue;
+            background-color: lightblue;
+            padding: 8px;
+        }
+
+        input[type="password"] {
+            border: 2px solid purple;
+            background-color: lavender;
+            padding: 8px;
+        }
+
+        li[type="circle"] {
+            list-style-type: circle;
+        }
+
+       
+        div p {
+            color: darkblue;
+        }
+
+       
+        div > h2 {
+            color: green;
+        }
+
+        h2 + p {
+            background-color: yellow;
+        }
+
+        h2 ~ ul {
+            border: 2px solid orange;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <center>
+
+        <h1>CSS Selectors</h1>
+
+        <input type="text" placeholder="Enter your name">
+        <br><br>
+
+        <input type="password" placeholder="Enter password">
+
+        <br><br>
+
+        <div>
+
+            <h2>Combinators</h2>
+
+            <p>This paragraph is inside the div.</p>
+
+            <p>This is another paragraph.</p>
+
+            <ul>
+                <li>Apple</li>
+                <li>Banana</li>
+                <li>Mango</li>
+            </ul>
+
+        </div>
+
+        <br>
+        <!-- Attribute Selector -->
+        <li type="circle">
+            @Kavya
+        </li>
+
+    </center>
+
+</body>
+</html>

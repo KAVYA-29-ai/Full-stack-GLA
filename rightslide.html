@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Image Stack Effect</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: black;
+  overflow-x: UTF-8;
+  overflow-y: hidden;
+}
+
+.container {
+  width: 400vw;
+}
+
+.card {
+  height: 100vh;
+  width: 400vw;       
+  position: sticky;
+  top: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  overflow: visible; 
+}
+
+.card img {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-left: -100vw;
+}
+
+.card img:first-child {
+  margin-left: 0;
+}
+</style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=80">
+      <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2000&q=80">
+      <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=80">
+      <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80">
+    </div>
+
+  </div>
+
+</body>
+</html>

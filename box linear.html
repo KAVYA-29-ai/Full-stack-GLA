@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Linear gradient  conic gradient box</title>
+    </head>
+    <body>
+        <style>
+            .box {
+                width: 200px;
+                height: 200px;
+                background: linear-gradient(to bottom, red, black , pink , blue , green , yellow , orange);
+                border: 2px solid black;
+                margin: 20px;
+            }
+            .box-radial {
+                width: 200px;
+              height: 200px;
+            background: radial-gradient(circle, red, black , pink , blue , green , yellow , orange);
+            border: 2px solid black;
+            margin: 20px;   
+            border-radius: 0%;
+            }
+            .box-conic {
+                width: 200px;
+                height: 200px;
+                background: conic-gradient(red, black , pink , blue , green , yellow , orange);
+                border: 2px solid black;
+                margin: 20px;
+                border-radius: 50%;
+            }
+            .text-gradient {
+                font-size: 50px;
+                font-weight: bold;
+                background: linear-gradient(to right, red, black , pink , blue , green , yellow , orange); 
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .loading-gradient {
+                width: 200px;
+                height: 20px;
+                background: linear-gradient(to right, rgb(255,0,0) ,  rgb(255, 50, 0) , rgb(255, 75, 0) , rgb(255, 100, 0) , rgb(255, 125, 0) , rgb(255, 150, 0) , rgb(255, 175, 0) , rgb(255, 200, 0) , rgb(255, 225, 0) , rgb(0, 0, 0) ,rgb(0, 0, 0) , rgb(0, 0, 0));
+                border: 2px solid black;
+                margin: 20px;
+                border-radius: 10px;
+            }
+        </style>  
+        <div class="box"></div>
+        <div class="box-radial"></div>
+        <div class="box-conic"></div>
+        <div class="text-gradient">Gradient Text</div>
+        <div class="loading-gradient"></div>
+    </body>
+</html>
