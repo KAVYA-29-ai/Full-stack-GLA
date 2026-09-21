@@ -1,201 +1,169 @@
 <!DOCTYPE html>
+
 <html>
 <head>
-  <title>SaaS Landing Page</title>
+<style>
+* {
+  box-sizing: border-box;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+body {
+margin: 0;
+background: #F8FAFC;
+color: #0F172A;
+font-family: Arial, sans-serif;
+}
 
-    body {
-      background: #F8FAFC;
-      color: #0F172A;
-      font-family: Inter, Arial, sans-serif;
-    }
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 24px;
+}
 
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 0 24px;
-    }
+nav {
+height: 72px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-size: 14px;
+font-weight: 500;
+}
 
-    /* Navbar - Flexbox */
-    nav {
-      height: 72px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+nav a {
+margin-left: 20px;
+color: #475569;
+text-decoration: none;
+}
 
-    nav a {
-      margin-left: 24px;
-      color: #475569;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-    }
+.menu {
+display: none;
+}
 
-    .menu {
-      display: none;
-    }
+.hero {
+min-height: 520px;
+display: flex;
+align-items: center;
+padding-top: 80px;
+}
 
-    /* Hero */
-    .hero {
-      min-height: 520px;
-      display: flex;
-      align-items: center;
-    }
+.hero div {
+max-width: 650px;
+}
 
-    .hero-text {
-      max-width: 650px;
-    }
+h1 {
+font-size: 48px;
+line-height: 1.1;
+margin: 0;
+}
 
-    h1 {
-      font-size: 48px;
-      line-height: 1.1;
-      font-weight: 700;
-    }
+.hero p {
+font-size: 18px;
+line-height: 1.6;
+color: #475569;
+margin: 20px 0 32px;
+}
 
-    .hero p {
-      margin-top: 20px;
-      font-size: 18px;
-      line-height: 1.6;
-      color: #475569;
-    }
+button {
+background: #4F46E5;
+color: white;
+border: none;
+padding: 12px 20px;
+border-radius: 6px;
+cursor: pointer;
+}
 
-    .buttons {
-      display: flex;
-      gap: 16px;
-      margin-top: 32px;
-    }
+button {
+background: #4338CA;
+}
 
-    button {
-      padding: 12px 22px;
-      border: 0;
-      border-radius: 6px;
-      background: #4F46E5;
-      color: white;
-      cursor: pointer;
-    }
+.buttons {
+display: flex;
+gap: 16px;
+}
 
-    button:hover {
-      background: #4338CA;
-    }
+h2 {
+font-size: 32px;
+margin-bottom: 48px;
+}
 
-    /* Features - Grid */
-    .features h2 {
-      font-size: 32px;
-      margin-bottom: 48px;
-    }
+.cards {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 24px;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
+.card {
+background: #fff;
+border: 1px solid #E2E8F0;
+padding: 24px;
+}
 
-    .card {
-      background: #fff;
-      border: 1px solid #E2E8F0;
-      padding: 24px;
-      border-radius: 8px;
-    }
+.card h3 {
+font-size: 20px;
+}
 
-    .card h3 {
-      font-size: 20px;
-      margin-bottom: 12px;
-    }
+.card p {
+font-size: 16px;
+color: #475569;
+}
 
-    .card p {
-      font-size: 16px;
-      color: #475569;
-    }
+@media (max-width: 1023px) {
+.cards {
+grid-template-columns: repeat(2, 1fr);
+}
+}
 
-    /* Tablet */
-    @media (max-width: 1023px) {
-      .cards {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+@media (max-width: 639px) {
+nav .links {
+display: none;
+}
 
-    /* Mobile */
-    @media (max-width: 639px) {
-      nav .links {
-        display: none;
-      }
+.menu {
+display: block;
+}
 
-      .menu {
-        display: block;
-      }
+.hero {
+text-align: center;
+}
 
-      .hero {
-        text-align: center;
-      }
+h1 {
+font-size: 36px;
+}
 
-      h1 {
-        font-size: 36px;
-      }
+.buttons {
+flex-direction: column;
+}
 
-      .buttons {
-        flex-direction: column;
-      }
+.cards {
+grid-template-columns: 1fr;
+}
+}
+</style>
 
-      .cards {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
 </head>
 
 <body>
+<nav class="container">
+  <b>SaaSify</b>
+  <div class="links"><a href="#">Home</a><a href="#">Features</a><a href="#">Pricing</a></div>
+  <button class="menu">☰</button>
+</nav>
 
-  <nav class="container">
-    <strong>SaaSify</strong>
+<section class="hero container">
+  <div>
+    <h1>Build Faster with SaaS</h1>
+    <p>Simple tools to manage and grow your business.</p>
+    <div class="buttons"><button>Get Started</button><button>Learn More</button></div>
+  </div>
+</section>
 
-    <div class="links">
-      <a href="#">Home</a>
-      <a href="#">Features</a>
-      <a href="#">Pricing</a>
-    </div>
-
-    <button class="menu">☰</button>
-  </nav>
-
-  <section class="hero container">
-    <div class="hero-text">
-      <h1>Build faster with our SaaS platform</h1>
-      <p>Everything you need to manage, grow and scale your business in one simple platform.</p>
-
-      <div class="buttons">
-        <button>Get Started</button>
-        <button>Learn More</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="features container">
-    <h2>Powerful Features</h2>
-
-    <div class="cards">
-      <div class="card">
-        <h3>Easy to Use</h3>
-        <p>Simple tools designed for everyone.</p>
-      </div>
-
-      <div class="card">
-        <h3>Fast & Secure</h3>
-        <p>Reliable performance with strong security.</p>
-      </div>
-
-      <div class="card">
-        <h3>Analytics</h3>
-        <p>Understand your business with useful insights.</p>
-      </div>
-    </div>
-  </section>
-
+<section class="container">
+  <h2>Features</h2>
+  <div class="cards">
+    <div class="card"><h3>Easy to Use</h3><p>Simple and intuitive.</p></div>
+    <div class="card"><h3>Fast & Secure</h3><p>Reliable and protected.</p></div>
+    <div class="card"><h3>Analytics</h3><p>Useful business insights.</p></div>
+  </div>
+</section>
 </body>
 </html>
