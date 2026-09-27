@@ -1,15 +1,188 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#F8FAFC;color:#0F172A;font:16px Inter,Arial,sans-serif}.wrap{max-width:1200px;margin:auto;padding:0 24px}nav{height:72px;display:flex;justify-content:space-between;align-items:center}nav a{margin-left:24px;color:#475569;text-decoration:none;font-size:14px}.hero{min-height:520px;display:flex;align-items:center}.hero div{max-width:650px}.hero h1{font-size:48px;line-height:1.1;margin:0 0 20px}.hero p{font-size:18px;line-height:1.6;color:#475569;margin:0 0 32px}.btn{display:inline-block;padding:12px 20px;background:#4F46E5;color:white;text-decoration:none;border-radius:8px;margin-right:8px}.btn:hover{background:#4338CA}section{padding:60px 0}h2{font-size:32px;margin:0 0 48px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.card{background:white;border:1px solid #E2E8F0;border-radius:12px;padding:24px}.card h3{font-size:20px;margin:0 0 10px}.card p{color:#475569;line-height:1.6;margin:0}@media(max-width:1023px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:639px){nav div:last-child{display:none}.hero{text-align:center;justify-content:center}.hero h1{font-size:36px}.btn{display:block;margin:8px 0}.grid{grid-template-columns:1fr}}
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #F8FAFC;
+            color: #0F172A;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 24px;
+        }
+
+        nav {
+            height: 72px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            margin-left: 20px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .hero {
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero div {
+            max-width: 650px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin: 0 0 20px;
+        }
+
+        .hero p {
+            color: #475569;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #4F46E5;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            background: #4338CA;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin-bottom: 48px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .card p {
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1023px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 639px) {
+            nav div {
+                display: none;
+            }
+
+            .hero {
+                text-align: center;
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .btn {
+                display: block;
+                margin: 8px 0;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="wrap">
-<nav><b>Flowly</b><div><a href="#">Features</a><a href="#">Pricing</a><a href="#">Contact</a></div></nav>
-<div class="hero"><div><h1>Work smarter. Move faster.</h1><p>A simple SaaS workspace that keeps your team focused, aligned, and productive.</p><a class="btn" href="#">Get Started</a><a class="btn" href="#" style="background:#0F172A">Learn More</a></div></div>
-<section><h2>Everything your team needs</h2><div class="grid"><div class="card"><h3>Simple workflow</h3><p>Organize tasks and keep everyday work clear.</p></div><div class="card"><h3>Team collaboration</h3><p>Share ideas, updates, and progress in one place.</p></div><div class="card"><h3>Useful insights</h3><p>See what matters with clean, focused analytics.</p></div></div></section>
+
+<div class="container">
+
+    <nav>
+        <b>Flowly</b>
+
+        <div>
+            <a href="#">Features</a>
+            <a href="#">Pricing</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div>
+            <h1>Work smarter. Move faster.</h1>
+
+            <p>
+                A simple workspace that keeps your team focused,
+                aligned and productive.
+            </p>
+
+            <a class="btn" href="#">Get Started</a>
+            <a class="btn" href="#" style="background:#0F172A;">Learn More</a>
+        </div>
+    </div>
+
+    <section>
+        <h2>Everything your team needs</h2>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Simple workflow</h3>
+                <p>Organize tasks and keep everyday work clear.</p>
+            </div>
+
+            <div class="card">
+                <h3>Team collaboration</h3>
+                <p>Share ideas, updates and progress in one place.</p>
+            </div>
+
+            <div class="card">
+                <h3>Useful insights</h3>
+                <p>See what matters with simple analytics.</p>
+            </div>
+        </div>
+    </section>
+
 </div>
+
 </body>
 </html>
