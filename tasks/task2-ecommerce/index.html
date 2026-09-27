@@ -1,17 +1,252 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#F8FAFC;color:#111827;font:14px Inter,Arial}.wrap{max-width:1280px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.top nav a{margin-left:20px;text-decoration:none;color:#6B7280}.layout{display:grid;grid-template-columns:240px 1fr;gap:32px}.filters,.card{background:white;border:1px solid #E5E7EB;border-radius:12px}.filters{padding:18px;height:max-content}.filters h3{margin-top:0}.filters label{display:block;margin:14px 0;color:#6B7280}.products{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.card{overflow:hidden;display:flex;flex-direction:column}.pic{height:220px;background:linear-gradient(135deg,#dbeafe,#eef2ff);display:grid;place-items:center;font-size:48px;transition:.3s}.card:hover{box-shadow:0 10px 25px #0001}.card:hover .pic{transform:scale(1.04)}.info{padding:16px}.cat{color:#6B7280;font-size:13px}.name{font-weight:600;font-size:16px;margin:6px 0}.stars{color:#F59E0B}.price{font-weight:700;font-size:20px;margin:8px 0}.old{text-decoration:line-through;color:#9CA3AF;font-size:14px;margin-left:6px}.buy{border:0;background:#2563EB;color:#fff;padding:10px;border-radius:8px;width:100%}.badge{position:absolute;margin:10px;padding:5px 8px;background:#DC2626;color:white;border-radius:6px;font-size:12px}@media(min-width:1280px){.products{grid-template-columns:repeat(4,1fr)}}@media(max-width:1023px){.layout{display:block}.filters{margin-bottom:20px}.products{grid-template-columns:repeat(2,1fr)}}@media(max-width:639px){.top nav{display:none}.filters{display:none}.products{grid-template-columns:1fr}}
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #F8FAFC;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        header a {
+            margin-left: 20px;
+            color: #6B7280;
+            text-decoration: none;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 32px;
+        }
+
+        .filter,
+        .card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+        }
+
+        .filter {
+            padding: 18px;
+            height: max-content;
+        }
+
+        .filter label {
+            display: block;
+            margin: 14px 0;
+            color: #6B7280;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image {
+            height: 220px;
+            background: #EEF2FF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 20px #0002;
+        }
+
+        .card:hover .image {
+            transform: scale(1.04);
+        }
+
+        .info {
+            padding: 16px;
+        }
+
+        .category {
+            color: #6B7280;
+            font-size: 13px;
+        }
+
+        .name {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 6px 0;
+        }
+
+        .rating {
+            color: #F59E0B;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .old {
+            color: #9CA3AF;
+            font-size: 14px;
+            text-decoration: line-through;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563EB;
+            color: white;
+        }
+
+        .badge {
+            position: absolute;
+            margin: 10px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            background: #DC2626;
+            color: white;
+            font-size: 12px;
+        }
+
+        @media (min-width: 1280px) {
+            .products {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .layout {
+                display: block;
+            }
+
+            .filter {
+                margin-bottom: 20px;
+            }
+
+            .products {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 639px) {
+            header nav,
+            .filter {
+                display: none;
+            }
+
+            .products {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body><div class="wrap">
-<div class="top"><b>Shoply</b><nav><a href="#">Home</a><a href="#">Products</a><a href="#">Cart (2)</a></nav></div>
-<div class="layout"><aside class="filters"><h3>Filters</h3><label><input type="checkbox"> Electronics</label><label><input type="checkbox"> Accessories</label><label><input type="checkbox"> New Arrivals</label></aside>
-<main class="products">
-<div class="card"><span class="badge">SALE</span><div class="pic">🎧</div><div class="info"><div class="cat">Audio</div><div class="name">Studio Headphones</div><div class="stars">★★★★★</div><div class="price">₹2,499 <span class="old">₹3,499</span></div><button class="buy">Add to Cart</button></div></div>
-<div class="card"><span class="badge" style="background:#2563EB">NEW</span><div class="pic">⌚</div><div class="info"><div class="cat">Wearables</div><div class="name">Smart Watch</div><div class="stars">★★★★☆</div><div class="price">₹4,999 <span class="old">₹5,999</span></div><button class="buy">Add to Cart</button></div></div>
-<div class="card"><div class="pic">⌨️</div><div class="info"><div class="cat">Accessories</div><div class="name">Wireless Keyboard</div><div class="stars">★★★★★</div><div class="price">₹1,799</div><button class="buy">Add to Cart</button></div></div>
-<div class="card"><div class="pic">🖱️</div><div class="info"><div class="cat">Accessories</div><div class="name">Ergo Mouse</div><div class="stars">★★★★☆</div><div class="price">₹1,299</div><button class="buy">Add to Cart</button></div></div>
-</main></div></div></body>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <b>Shoply</b>
+
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Products</a>
+            <a href="#">Cart</a>
+        </nav>
+    </header>
+
+    <div class="layout">
+
+        <aside class="filter">
+            <h3>Filters</h3>
+            <label><input type="checkbox"> Electronics</label>
+            <label><input type="checkbox"> Accessories</label>
+            <label><input type="checkbox"> New Arrivals</label>
+        </aside>
+
+        <div class="products">
+
+            <div class="card">
+                <span class="badge">SALE</span>
+                <div class="image">🎧</div>
+
+                <div class="info">
+                    <div class="category">Audio</div>
+                    <div class="name">Studio Headphones</div>
+                    <div class="rating">★★★★★</div>
+                    <div class="price">₹2,499 <span class="old">₹3,499</span></div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="badge" style="background:#2563EB;">NEW</span>
+                <div class="image">⌚</div>
+
+                <div class="info">
+                    <div class="category">Wearables</div>
+                    <div class="name">Smart Watch</div>
+                    <div class="rating">★★★★☆</div>
+                    <div class="price">₹4,999 <span class="old">₹5,999</span></div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="image">⌨️</div>
+
+                <div class="info">
+                    <div class="category">Accessories</div>
+                    <div class="name">Wireless Keyboard</div>
+                    <div class="rating">★★★★★</div>
+                    <div class="price">₹1,799</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="image">🖱️</div>
+
+                <div class="info">
+                    <div class="category">Accessories</div>
+                    <div class="name">Ergo Mouse</div>
+                    <div class="rating">★★★★☆</div>
+                    <div class="price">₹1,299</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
 </html>
